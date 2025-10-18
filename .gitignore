@@ -13,3 +13,7 @@ docs/
 # Dotenv file
 .env
 .vscode/
+
+#Coverage
+coverage/
+lcov.info
