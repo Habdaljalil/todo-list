@@ -2,8 +2,6 @@
 pragma solidity ^0.8.30;
 
 error TODO__DOES__NOT__EXIST();
-error TODO__LIST__DOES__NOT__EXIST();
-error TODO__LIST__ALREADY__EXISTS();
 
 /// @title
 /// @author
@@ -17,11 +15,14 @@ contract TodoList {
     }
 
     modifier todoExists(uint256 _todoID) {
+        _todoExists(_todoID);
+        _;
+    }
+
+    function _todoExists(uint256 _todoID) internal view {
         Todo[] memory userTodo = userToTodo[msg.sender];
         if (_todoID > (userTodo.length)) {
             revert TODO__DOES__NOT__EXIST();
-        } else {
-            _;
         }
     }
 
@@ -59,6 +60,7 @@ contract TodoList {
             if (i != _todoID) {
                 todoList.push(todoListCopy[i]);
             }
+            // implicitly covered by tests
         }
 
         return todoList;
