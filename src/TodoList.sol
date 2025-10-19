@@ -5,6 +5,21 @@ pragma solidity ^0.8.30;
 /// @dev Called if a function calls a user's Todo that is not in their Todo array(Todo[])
 error TODO__DOES__NOT__EXIST();
 
+
+/// @notice Called when a Todo is created
+/// @dev Emitted in the `addTodo` function
+event TODO__CREATED();
+
+/// @notice Called when a Todo is modified
+/// @dev Emitted in the `updateTodo` function
+event TODO__MODIFIED();
+
+/// @notice Called when a Todo is deleted
+/// @dev Emitted in the `deleteTodo` function
+event TODO__DELETED();
+
+
+
 /// @title Todo List
 /// @author Hassan Abdaljalil
 /// @notice Creates a list of Todos for users that allows them to add, modify, and delete todos
@@ -46,6 +61,7 @@ contract TodoList {
         Todo[] storage userTodo = userToTodo[msg.sender];
         Todo memory newTodo = Todo({taskName: _taskName, complete: false});
         userTodo.push(newTodo);
+        emit TODO__CREATED();
         return newTodo;
     }
 
@@ -66,6 +82,7 @@ contract TodoList {
             // If the new name isn't blank, change it
             todo.taskName = _newName;
         }
+        emit TODO__MODIFIED();
         return todo;
     }
 
@@ -85,7 +102,7 @@ contract TodoList {
             }
             // implicitly covered by tests
         }
-
+        emit TODO__DELETED();
         return todoList;
     }
 
