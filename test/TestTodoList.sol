@@ -11,6 +11,7 @@ contract TestTodoList is Test {
     string constant OLD_NAME = "HELLO";
     string constant NEW_NAME = "GOODBYE";
     uint256 constant NON_EXISTANT_TODO_ID = 1;
+    uint256 constant NON_EXISTANT_TODO_ID_TWO = 2;
 
     function setUp() public {
         DeployTodoList deployTodoList = new DeployTodoList();
@@ -63,6 +64,15 @@ contract TestTodoList is Test {
         vm.expectRevert();
         vm.startPrank(sender);
         todoList.deleteTodo(NON_EXISTANT_TODO_ID);
+        vm.stopPrank();
+    }
+
+    function testUserOutOfArrayBoundsAccess() public {
+        vm.startPrank(sender);
+        todoList.addTodo(OLD_NAME);
+        todoList.addTodo(NEW_NAME);
+        vm.expectRevert();
+        todoList.getTodoByID(NON_EXISTANT_TODO_ID_TWO);
         vm.stopPrank();
     }
 }

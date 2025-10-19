@@ -1,66 +1,206 @@
-## Foundry
+# TodoList
+[Git Source](https://github.com/Habdaljalil/todo-list/blob/f2195e79a40968e09ed7e7c30e18bb1dfef668ae/src/TodoList.sol)
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+**Author:**
+Hassan Abdaljalil
 
-Foundry consists of:
+Creates a list of Todos for users that allows them to add, modify, and delete todos
 
-- **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
-- **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
-- **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
-- **Chisel**: Fast, utilitarian, and verbose solidity REPL.
 
-## Documentation
+## State Variables
+### userToTodo
+Each user gets a list of todos
 
-https://book.getfoundry.sh/
+Every address that interacts with the contract gets an array of Todos
 
-## Usage
 
-### Build
-
-```shell
-$ forge build
+```solidity
+mapping(address => Todo[]) private userToTodo
 ```
 
-### Test
 
-```shell
-$ forge test
+## Functions
+### todoExists
+
+Checks to see if a Todo exists, given an ID
+
+Wraps the _todoExists function
+
+
+```solidity
+modifier todoExists(uint256 _todoID) ;
 ```
+**Parameters**
 
-### Format
+|Name|Type|Description|
+|----|----|-----------|
+|`_todoID`|`uint256`|is the position(in storage) in a user's Todo array|
 
-```shell
-$ forge fmt
+
+### _todoExists
+
+Function that verifies the existance of a Todo based on its ID
+
+Reads the msg.sender's array in storage, then it checks to see if the ID is out of bounds
+
+
+```solidity
+function _todoExists(uint256 _todoID) internal view;
 ```
+**Parameters**
 
-### Gas Snapshots
+|Name|Type|Description|
+|----|----|-----------|
+|`_todoID`|`uint256`|is the position(in storage) in a user's Todo array|
 
-```shell
-$ forge snapshot
+
+### addTodo
+
+Adds a Todo to a user's list of todos
+
+Creates a new Todo struct, then pushes it to msg.sender's Todo array
+
+
+```solidity
+function addTodo(string memory _taskName) external returns (Todo memory);
 ```
+**Parameters**
 
-### Anvil
+|Name|Type|Description|
+|----|----|-----------|
+|`_taskName`|`string`|is the name of the task the use wants to make|
 
-```shell
-$ anvil
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`Todo`|Todo struct created by the user|
+
+
+### updateTodo
+
+Modifies an existing Todo
+
+Updates a Todo struct, then pushes it to msg.sender's Todo array
+
+
+```solidity
+function updateTodo(string memory _newName, bool _newComplete, uint256 _todoID)
+    external
+    todoExists(_todoID)
+    returns (Todo memory);
 ```
+**Parameters**
 
-### Deploy
+|Name|Type|Description|
+|----|----|-----------|
+|`_newName`|`string`|is the name of the new Todo; if left blank, it will not modify the name of the Todo|
+|`_newComplete`|`bool`|is the new complete state of the Todo|
+|`_todoID`|`uint256`|is the position(in storage) in a msg.sender's Todo array|
 
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`Todo`|Todo struct modified by the user|
+
+
+### deleteTodo
+
+Deletes a Todo
+
+Removes the ID of msg.sender's Todo from their array
+
+
+```solidity
+function deleteTodo(uint256 _todoID) external todoExists(_todoID) returns (Todo[] memory);
 ```
+**Parameters**
 
-### Cast
+|Name|Type|Description|
+|----|----|-----------|
+|`_todoID`|`uint256`|is the position(in storage) in a user's Todo array|
 
-```shell
-$ cast <subcommand>
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`Todo[]`|Todo, the new array after the removal of an element|
+
+
+### clearTodo
+
+Removes all elements from a user's Todo array
+
+Loops through a user's Todo array and deletes all values
+
+
+```solidity
+function clearTodo(address _user) private returns (Todo[] storage);
 ```
+**Parameters**
 
-### Help
+|Name|Type|Description|
+|----|----|-----------|
+|`_user`|`address`|is the address of the user whose Todo array will be cleared|
 
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`Todo[]`|Todo, the cleared array|
+
+
+### getTodoList
+
+Gets the user's entire Todo list
+
+Finds the array of msg.sender and returns a copy
+
+
+```solidity
+function getTodoList() external view returns (Todo[] memory);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`Todo[]`|Todo, the entire Todo array|
+
+
+### getTodoByID
+
+Gets one Todo from the user's Todo list
+
+Gets a msg.sender's Todo array, then finds the specfic element and returns a copy
+
+
+```solidity
+function getTodoByID(uint256 _todoID) external view todoExists(_todoID) returns (Todo memory);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_todoID`|`uint256`|is the position(in storage) in a user's Todo array|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`Todo`|Todo, one Todo element in msg.sender's array of Todos|
+
+
+## Structs
+### Todo
+Defines a Todo to with a name and a status of complete/incomplete
+
+Creates a Todo struct with a taskName of type string and complete of type boolean
+
+
+```solidity
+struct Todo {
+    string taskName;
+    bool complete;
+}
 ```
